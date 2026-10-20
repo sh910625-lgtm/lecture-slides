@@ -1,0 +1,51 @@
+{
+ "coin": {
+  "title": "Coin tossing",
+  "creator": "Scarygami",
+  "creator_short": "Scarygami",
+  "license": "CC BY-SA 2.0",
+  "url": "https://www.flickr.com/photos/9294749@N03/5741275637"
+ },
+ "vending": {
+  "title": "HK TST Space Museum Vita Lemon Tea Vending machine",
+  "creator": "MApoCE",
+  "creator_short": "MApoCE",
+  "license": "CC BY-SA",
+  "url": "https://commons.wikimedia.org/w/index.php?curid=5056847"
+ },
+ "pizza": {
+  "title": "A whole pizza",
+  "creator": "Mohammed Kateregga",
+  "creator_short": "Mohammed Kateregga",
+  "license": "CC0 1.0",
+  "url": "https://wordpress.org/photos/photo/5946a25d9d/"
+ },
+ "stairs_ramp": {
+  "title": "Access ramp co-located with stairs, Adelaide Street Brisbane",
+  "creator": "John Robert McPherson",
+  "creator_short": "John Robert McPherson",
+  "license": "CC0",
+  "url": "https://commons.wikimedia.org/wiki/File:Access_ramp_co-located_with_stairs_Adelaide_Street_Brisbane_01.jpg"
+ },
+ "subway": {
+  "title": "Seoul subway 723 Yongmasan station platform",
+  "creator": "Kaitak89 on kowp",
+  "creator_short": "Kaitak89",
+  "license": "CC BY-SA 3.0",
+  "url": "https://commons.wikimedia.org/wiki/File:Seoul_subway_723_Yongmasan_station_platform_20080609.jpg"
+ },
+ "weights": {
+  "title": "Balance à tabac 1850",
+  "creator": "Photographie personnelle User:Poussin jean",
+  "creator_short": "Poussin jean",
+  "license": "CC BY-SA 3.0",
+  "url": "https://commons.wikimedia.org/wiki/File:Balance_%C3%A0_tabac_1850.JPG"
+ },
+ "sand": {
+  "title": "Pile of sand by the soccer fields at Brastad Arena",
+  "creator": "W.carter",
+  "creator_short": "W.carter",
+  "license": "CC BY-SA 4.0",
+  "url": "https://commons.wikimedia.org/wiki/File:Pile_of_sand_by_the_soccer_fields_at_Brastad_Arena.jpg"
+ }
+}

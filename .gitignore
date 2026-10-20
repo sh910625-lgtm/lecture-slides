@@ -1,0 +1,10 @@
+# 저작권 자료 (교과서 PDF, 외부 템플릿)는 올리지 않는다
+references/
+
+# Python / 렌더링 임시 파일
+__pycache__/
+*.pyc
+media/
+
+# Office 임시 파일
+~$*
