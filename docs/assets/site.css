@@ -1,0 +1,46 @@
+/* 공통 테마: 강의 템플릿 색 (배경 #222A35, 파란 계열 강조) */
+:root {
+  --bg: #222A35; --bg2: #1B222B; --card: #2C3646; --line: #3A4658;
+  --a1: #1F608B; --a2: #2980B9; --a3: #4098D4; --a4: #7BB8E1; --a5: #9FCBE9;
+  --text: #EEF2F6; --muted: #A7B4C4; --faint: #8B99AB;
+  --ok: #5CC28A; --bad: #F07C6C; --tag: #F2B04C;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: "Pretendard Variable", Pretendard, -apple-system, "Malgun Gothic", sans-serif;
+  line-height: 1.6; word-break: keep-all;
+}
+a { color: var(--a4); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+
+.topbar { position: sticky; top: 0; z-index: 10; background: rgba(27, 34, 43, .92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.topbar .wrap { display: flex; align-items: center; gap: 20px; height: 56px; overflow-x: auto; }
+.topbar .brand { font-weight: 700; color: var(--text); text-decoration: none; white-space: nowrap; }
+.topbar nav { display: flex; gap: 4px; margin-left: auto; }
+.topbar nav a { color: var(--muted); text-decoration: none; padding: 6px 12px; border-radius: 8px; white-space: nowrap; font-size: 15px; }
+.topbar nav a:hover { color: var(--text); background: var(--card); }
+.topbar nav a[aria-current] { color: var(--text); background: var(--a1); }
+
+.page-head { padding: 40px 0 24px; }
+.eyebrow { color: var(--a4); font-weight: 600; margin: 0 0 4px; font-size: 15px; }
+h1 { font-size: clamp(28px, 5vw, 40px); margin: 0; line-height: 1.25; letter-spacing: -.5px; }
+.lead { color: var(--muted); margin: 8px 0 0; }
+
+.card { background: var(--card); border-radius: 16px; padding: 24px; }
+.btn {
+  font: inherit; font-weight: 600; font-size: 15px; color: var(--text); background: var(--card);
+  border: 1px solid var(--line); border-radius: 10px; padding: 9px 16px; cursor: pointer;
+}
+.btn:hover { border-color: var(--a3); }
+.btn.primary { background: var(--a2); border-color: var(--a2); }
+.btn.primary:hover { background: var(--a3); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--a4); outline-offset: 2px; }
+input[type="text"], select {
+  font: inherit; color: var(--text); background: var(--bg2); border: 1px solid var(--line);
+  border-radius: 10px; padding: 9px 12px;
+}
+input[type="range"] { accent-color: var(--a3); width: 100%; }
+.footer { color: var(--faint); font-size: 14px; padding: 48px 0 32px; }

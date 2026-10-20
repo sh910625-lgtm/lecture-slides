@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>확률과 통계 강의자료</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+.lectures { display: grid; gap: 16px; margin-top: 8px; }
+.lecture { display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: center; }
+.lecture img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; display: block; }
+.lecture h2 { margin: 0 0 4px; font-size: 22px; }
+.lecture p { margin: 0 0 14px; color: var(--muted); }
+.links { display: flex; flex-wrap: wrap; gap: 8px; }
+.links a { text-decoration: none; }
+.soon { opacity: .55; }
+@media (max-width: 640px) { .lecture { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap"><a class="brand" href="./">확률과 통계</a></div></header>
+<main class="wrap">
+  <div class="page-head">
+    <p class="eyebrow">Ⅲ. 통계</p>
+    <h1>확률과 통계 강의자료</h1>
+    <p class="lead">차시별 슬라이드와 복습 퀴즈, 직접 움직여 보는 확률분포 놀이터입니다.</p>
+  </div>
+  <div class="lectures">
+    <article class="card lecture">
+      <a href="lecture1/"><img src="lecture1/assets/Intro.png" alt="1강 표지: 책상 위에서 회전하는 동전"></a>
+      <div>
+        <p class="eyebrow">1강 · 1. 확률분포</p>
+        <h2>확률변수와 확률분포</h2>
+        <p>확률변수, 이산확률분포와 확률질량함수, 연속확률변수와 확률밀도함수</p>
+        <div class="links">
+          <a class="btn primary" href="lecture1/">슬라이드</a>
+          <a class="btn" href="lecture1/quiz.html">복습 퀴즈</a>
+          <a class="btn" href="lecture1/playground.html">놀이터</a>
+        </div>
+      </div>
+    </article>
+    <article class="card lecture soon">
+      <div style="aspect-ratio:16/9;border-radius:12px;background:var(--bg2);display:grid;place-items:center;color:var(--faint)">준비 중</div>
+      <div><p class="eyebrow">2강</p><h2>이산확률변수의 기댓값과 표준편차</h2><p>다음 시간에 공개됩니다.</p></div>
+    </article>
+  </div>
+  <p class="footer">슬라이드: ←/→ 또는 클릭으로 넘기기 · N 발표자 노트 · F 전체화면 · 사진 출처는 각 슬라이드와 출처 슬라이드에 표시</p>
+</main>
+</body>
+</html>

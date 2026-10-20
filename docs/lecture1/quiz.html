@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1강 복습 퀴즈</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.quiz { max-width: 760px; margin: 0 auto; }
+.progress { display: flex; gap: 6px; margin: 0 0 16px; }
+.progress span { flex: 1; height: 6px; border-radius: 3px; background: var(--line); }
+.progress span.ok { background: var(--ok); }
+.progress span.bad { background: var(--bad); }
+.progress span.now { background: var(--a4); }
+.meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 14px; margin-bottom: 10px; }
+.chip { font-size: 13px; font-weight: 600; color: var(--a5); background: var(--a1); border-radius: 999px; padding: 2px 10px; }
+.q { font-size: 20px; line-height: 1.7; margin: 0 0 20px; }
+.q table { border-collapse: collapse; margin: 12px 0 0; font-size: 17px; }
+.q th, .q td { border: 1px solid var(--line); padding: 6px 14px; text-align: center; }
+.q th { background: var(--a1); }
+.answer { display: flex; gap: 8px; flex-wrap: wrap; }
+.answer input { flex: 1; min-width: 160px; font-size: 18px; }
+.hint { color: var(--faint); font-size: 14px; margin: 8px 0 0; }
+.choices { display: grid; gap: 10px; }
+.choice { text-align: left; font-size: 17px; padding: 14px 16px; }
+.choice.ok { border-color: var(--ok); background: rgba(92, 194, 138, .15); }
+.choice.bad { border-color: var(--bad); background: rgba(240, 124, 108, .15); }
+.feedback { margin-top: 20px; padding: 16px 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg2); display: none; }
+.feedback.on { display: block; }
+.feedback .verdict { font-weight: 700; font-size: 18px; margin: 0 0 6px; }
+.feedback .verdict.ok { color: var(--ok); }
+.feedback .verdict.bad { color: var(--bad); }
+.feedback p { margin: 4px 0; color: var(--muted); }
+.actions { display: flex; justify-content: flex-end; margin-top: 16px; }
+.score { text-align: center; padding: 32px 24px; }
+.score .big { font-size: 64px; font-weight: 800; color: var(--a4); line-height: 1.1; }
+.review { list-style: none; padding: 0; margin: 24px 0 0; text-align: left; display: grid; gap: 8px; }
+.review li { background: var(--bg2); border-radius: 10px; padding: 10px 14px; font-size: 15px; display: flex; gap: 10px; }
+.review .mark { font-weight: 700; flex: none; width: 36px; }
+.review .mark.ok { color: var(--ok); } .review .mark.bad { color: var(--bad); }
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../">확률과 통계</a>
+  <nav><a href="index.html">1강 슬라이드</a><a href="quiz.html" aria-current="page">퀴즈</a><a href="playground.html">놀이터</a></nav>
+</div></header>
+
+<main class="wrap">
+  <div class="quiz">
+    <div class="page-head">
+      <p class="eyebrow">1강 · 확률변수와 확률분포</p>
+      <h1>복습 퀴즈 10문항</h1>
+      <p class="lead">풀 때마다 숫자가 바뀝니다. 답은 <b>1/4</b>, <b>0.25</b>처럼 분수나 소수로 써도 됩니다.</p>
+    </div>
+    <div class="progress" id="progress"></div>
+    <div class="card" id="box"></div>
+  </div>
+  <p class="footer wrap">문항은 교과서 Ⅲ-1 확률분포 단원의 확인 문제 유형을 바탕으로 무작위로 만들어집니다.</p>
+</main>
+
+<script>
+// ---------- 수 다루기 ----------
+const gcd = (a, b) => b ? gcd(b, a % b) : Math.abs(a);
+const C = (n, k) => { if (k < 0 || k > n) return 0; let r = 1; for (let i = 1; i <= k; i++) r = r * (n - k + i) / i; return Math.round(r); };
+const ri = (a, b) => a + Math.floor(Math.random() * (b - a + 1));          // a 이상 b 이하 정수
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = arr => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = ri(0, i); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function frac(n, d) {                                                      // 기약분수 문자열
+  if (d < 0) { n = -n; d = -d; }
+  const g = gcd(n, d) || 1; n /= g; d /= g;
+  return d === 1 ? String(n) : `${n}/${d}`;
+}
+function parse(s) {                                                        // "3/10", "0.3", "30%", "1" → 수
+  s = s.replace(/\s/g, '').replace(',', '.');
+  if (!s) return NaN;
+  if (/^-?\d+(\.\d+)?%$/.test(s)) return parseFloat(s) / 100;
+  const m = s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
+  if (m) return parseFloat(m[1]) / parseFloat(m[2]);
+  return /^-?\d*\.?\d+$/.test(s) ? parseFloat(s) : NaN;
+}
+const close = (u, ans, raw) => Math.abs(u - ans) < (raw.includes('.') ? 5e-4 : 1e-9);
+
+// ---------- 문제 만들기 (각각 새 숫자로) ----------
+const GEN = [
+  function coinValues() {
+    const n = ri(2, 5);
+    return { tag: '확률변수', input: true,
+      q: `동전 ${n}개를 동시에 던질 때, 앞면이 나오는 개수를 X라고 하자. X가 취할 수 있는 값은 모두 몇 개인가?`,
+      ans: n + 1, show: String(n + 1),
+      why: `X = 0, 1, …, ${n} 이므로 ${n + 1}개입니다. 근원사건은 2^${n} = ${2 ** n}개지만, X의 값은 앞면의 개수로 묶입니다.` };
+  },
+  function kValue() {
+    const n = ri(3, 6), s = n * (n + 1) / 2;
+    return { tag: '이산', input: true,
+      q: `확률변수 X의 확률질량함수가 P(X = x) = kx (x = 1, 2, …, ${n})일 때, 상수 k의 값을 구하시오.`,
+      ans: 1 / s, show: frac(1, s),
+      why: `확률을 모두 더하면 1: k(1 + 2 + … + ${n}) = ${s}k = 1 → k = ${frac(1, s)}` };
+  },
+  function kTail() {
+    const n = ri(3, 5), s = n * (n + 1) / 2, m = ri(2, n);
+    let t = 0; for (let x = m; x <= n; x++) t += x;
+    const terms = []; for (let x = m; x <= n; x++) terms.push(`${x}/${s}`);
+    return { tag: '이산', input: true,
+      q: `확률변수 X의 확률질량함수가 P(X = x) = x/${s} (x = 1, 2, …, ${n})일 때, P(X ≥ ${m})을 구하시오.`,
+      ans: t / s, show: frac(t, s),
+      why: `P(X ≥ ${m}) = ${terms.join(' + ')} = ${frac(t, s)}  (구간의 확률은 그 안의 확률을 더한 것)` };
+  },
+  function tableBlank() {
+    const d = pick([8, 10, 12]);
+    let ps;
+    do { const a = ri(1, d - 3), b = ri(1, d - a - 2), c = ri(1, d - a - b - 1); ps = [a, b, c, d - a - b - c]; } while (ps.some(p => p < 1));
+    const hide = ri(0, 3);
+    const cells = ps.map((p, i) => i === hide ? '<b>a</b>' : frac(p, d));
+    const known = ps.filter((_, i) => i !== hide).map(p => frac(p, d));
+    return { tag: '이산', input: true,
+      q: `확률변수 X의 확률분포가 다음과 같을 때, a의 값을 구하시오.
+        <table><tr><th>X</th><th>0</th><th>1</th><th>2</th><th>3</th><th>합계</th></tr>
+        <tr><th>P(X = x)</th>${cells.map(c => `<td>${c}</td>`).join('')}<td>1</td></tr></table>`,
+      ans: ps[hide] / d, show: frac(ps[hide], d),
+      why: `확률의 합은 1이므로 a = 1 − (${known.join(' + ')}) = ${frac(ps[hide], d)}` };
+  },
+  function classify() {
+    const disc = ['주사위를 한 번 던져 나오는 눈의 수', '동전 5개를 던질 때 앞면의 개수', '한 반에서 안경을 쓴 학생 수', '하루 동안 받은 문자 메시지 수', '10문제 시험에서 맞힌 문제 수'];
+    const cont = ['학생 한 명의 키', '버스를 기다리는 시간', '하루 강수량', '사과 한 개의 무게', '100 m 달리기 기록'];
+    const wantCont = Math.random() < .5;
+    const right = pick(wantCont ? cont : disc);
+    const opts = shuffle([right, ...shuffle(wantCont ? disc : cont).slice(0, 3)]);
+    return { tag: '이산·연속', choices: opts, correct: opts.indexOf(right),
+      q: `다음 중 <b>${wantCont ? '연속' : '이산'}확률변수</b>인 것은?`,
+      show: right,
+      why: wantCont ? `‘${right}’은(는) 어떤 범위의 모든 실수 값을 취할 수 있으므로 연속확률변수입니다 (경사로). 나머지는 하나, 둘… 셀 수 있는 값입니다.`
+                    : `‘${right}’은(는) 값을 하나, 둘… 셀 수 있으므로 이산확률변수입니다 (계단). 나머지는 범위 안의 모든 실수 값을 취합니다.` };
+  },
+  function canBeDist() {
+    const f = arr => arr.map(v => (v / 10).toFixed(1)).join(', ');
+    const parts = () => { const a = ri(1, 6), b = ri(1, 9 - a - 1); return [a, b, 10 - a - b]; };
+    const good = parts();
+    const over = parts(); over[ri(0, 2)] += 1;                   // 합 1.1
+    const under = parts(); const k = under.findIndex(v => v > 1); under[k] -= 1;   // 합 0.9
+    const neg = [ri(5, 8), 0, 0]; neg[1] = 11 - neg[0]; neg[2] = -1;              // 음수 포함, 합 1
+    const items = [[good, '합이 1이고 모두 0 이상 1 이하'], [over, '합이 1.1'], [under, '합이 0.9'], [shuffle(neg), '음수 확률이 있음']];
+    const opts = shuffle(items);
+    const reasons = opts.filter(o => o[0] !== good).map(o => `${f(o[0])} → ${o[1]}`).join(' / ');
+    return { tag: '이산', choices: opts.map(o => `P(X = x₁), P(X = x₂), P(X = x₃) = ${f(o[0])}`), correct: opts.findIndex(o => o[0] === good),
+      q: '세 값 x₁, x₂, x₃을 취하는 확률변수 X에 대하여, 다음 중 <b>확률분포가 될 수 있는 것</b>은?',
+      show: f(good),
+      why: `확률분포가 되려면 (1) 각 확률이 0 이상 1 이하, (2) 합이 1이어야 합니다. ${reasons}` };
+  },
+  function uniform() {
+    const L = pick([10, 15, 20, 30]); let a = ri(0, L - 2), b = ri(a + 1, L);
+    return { tag: '연속', input: true,
+      q: `${L}분 간격으로 오는 버스 정류장에 아무 때나 도착할 때, 기다리는 시간을 X분이라 하자. X의 확률밀도함수가 f(x) = 1/${L} (0 ≤ x ≤ ${L})일 때, P(${a} ≤ X ≤ ${b})를 구하시오.`,
+      ans: (b - a) / L, show: frac(b - a, L),
+      why: `가로 ${b} − ${a} = ${b - a}, 세로 1/${L}인 직사각형의 넓이: ${b - a} × 1/${L} = ${frac(b - a, L)}` };
+  },
+  function triangle() {
+    // 끝점은 0, 1/2, 1, 3/2, 2 중 두 개 (2배 한 정수 0~4로 다룬다)
+    const halves = shuffle([0, 1, 2, 3, 4]).slice(0, 2).sort((x, y) => x - y);
+    if (halves[0] === 0 && halves[1] === 4) halves[1] = 2;        // P(0 ≤ X ≤ 2) = 1은 너무 쉬움
+    const [A, B] = halves; const lab = h => frac(h, 2);
+    const num = B * B - A * A;                                     // (B²−A²)/16
+    return { tag: '연속', input: true,
+      q: `연속확률변수 X의 확률밀도함수가 f(x) = x/2 (0 ≤ x ≤ 2)일 때, P(${lab(A)} ≤ X ≤ ${lab(B)})을 구하시오.`,
+      ans: num / 16, show: frac(num, 16),
+      why: `x = ${lab(A)}에서 높이 ${frac(A, 4)}, x = ${lab(B)}에서 높이 ${frac(B, 4)}. ${A === 0 ? '삼각형' : '사다리꼴'}의 넓이 = ${A === 0 ? `½ × ${lab(B)} × ${frac(B, 4)}` : `½ × (${frac(A, 4)} + ${frac(B, 4)}) × ${frac(B - A, 2)}`} = ${frac(num, 16)}` };
+  },
+  function pointZero() {
+    const c = ri(2, 8);
+    const opts = ['0', `1/10`, `${c}/10`, '1'];
+    return { tag: '연속', choices: opts, correct: 0,
+      q: `10분 간격 지하철역에서 기다리는 시간 X(분)의 확률밀도함수가 f(x) = 1/10 (0 ≤ x ≤ 10)일 때, 정확히 ${c}분 기다릴 확률 P(X = ${c})은?`,
+      show: '0',
+      why: `연속확률변수에서 한 점의 확률은 폭이 0인 막대의 넓이이므로 0입니다 (모래 한 알갱이의 무게). 그래서 P(a ≤ X ≤ b)와 P(a < X < b)는 같습니다.` };
+  },
+  function balls() {
+    const w = ri(3, 5), b = ri(2, 3), k = ri(0, 2), total = C(w + b, 2), num = C(w, k) * C(b, 2 - k);
+    return { tag: '이산', input: true,
+      q: `흰 공 ${w}개, 검은 공 ${b}개가 들어 있는 주머니에서 임의로 2개의 공을 동시에 꺼낼 때, 흰 공의 개수를 X라고 하자. P(X = ${k})을 구하시오.`,
+      ans: num / total, show: frac(num, total),
+      why: `P(X = ${k}) = ${w}C${k} × ${b}C${2 - k} / ${w + b}C2 = ${C(w, k)} × ${C(b, 2 - k)} / ${total} = ${frac(num, total)}` };
+  },
+];
+
+// ---------- 진행 ----------
+let qs, idx, results;
+const box = document.getElementById('box'), prog = document.getElementById('progress');
+
+function start() {
+  qs = GEN.map(g => g()); idx = 0; results = [];
+  render();
+}
+
+function drawProgress() {
+  prog.innerHTML = qs.map((_, i) => `<span class="${i < results.length ? (results[i] ? 'ok' : 'bad') : i === idx ? 'now' : ''}"></span>`).join('');
+}
+
+function render() {
+  drawProgress();
+  const q = qs[idx];
+  box.innerHTML = `
+    <div class="meta"><span>문제 ${idx + 1} / ${qs.length}</span><span class="chip">${q.tag}</span></div>
+    <div class="q">${q.q}</div>
+    ${q.input
+      ? `<form class="answer" id="f"><input type="text" id="in" inputmode="decimal" autocomplete="off" placeholder="답 (예: 3/10)" aria-label="답"><button class="btn primary">확인</button></form>
+         <p class="hint">분수는 3/10처럼, 소수는 0.3처럼 입력하세요.</p>`
+      : `<div class="choices">${q.choices.map((c, i) => `<button class="btn choice" data-i="${i}">${`${i + 1})`} ${c}</button>`).join('')}</div>`}
+    <div class="feedback" id="fb"></div>
+    <div class="actions"><button class="btn primary" id="nx" hidden>${idx + 1 < qs.length ? '다음 문제' : '결과 보기'}</button></div>`;
+  if (q.input) {
+    const inp = document.getElementById('in');
+    inp.focus();
+    document.getElementById('f').onsubmit = e => {
+      e.preventDefault();
+      const v = parse(inp.value);
+      if (isNaN(v)) { inp.setCustomValidity('수로 입력해 주세요 (예: 3/10, 0.3)'); inp.reportValidity(); inp.setCustomValidity(''); return; }
+      inp.disabled = true; e.target.querySelector('button').disabled = true;
+      grade(close(v, q.ans, inp.value));
+    };
+  } else {
+    box.querySelectorAll('.choice').forEach(b => b.onclick = () => {
+      const i = +b.dataset.i;
+      box.querySelectorAll('.choice').forEach(x => x.disabled = true);
+      box.querySelector(`[data-i="${q.correct}"]`).classList.add('ok');
+      if (i !== q.correct) b.classList.add('bad');
+      grade(i === q.correct);
+    });
+  }
+}
+
+function grade(ok) {
+  const q = qs[idx];
+  results.push(ok);
+  const fb = document.getElementById('fb');
+  fb.innerHTML = `<p class="verdict ${ok ? 'ok' : 'bad'}">${ok ? '정답입니다!' : `아쉬워요. 정답: ${q.show}`}</p><p>${q.why}</p>`;
+  fb.classList.add('on');
+  drawProgress();
+  const nx = document.getElementById('nx');
+  nx.hidden = false; nx.focus();
+  nx.onclick = () => { idx++; idx < qs.length ? render() : finish(); };
+}
+
+function finish() {
+  idx = qs.length; drawProgress();
+  const n = results.filter(Boolean).length;
+  const msg = n === qs.length ? '완벽해요! 오늘 내용을 모두 이해했어요.' : n >= 7 ? '잘했어요. 틀린 문제의 해설만 다시 보세요.' : '슬라이드와 놀이터로 한 번 더 복습해 볼까요?';
+  box.innerHTML = `<div class="score">
+    <p class="eyebrow">결과</p><p class="big">${n} / ${qs.length}</p><p class="lead">${msg}</p>
+    <ul class="review">${qs.map((q, i) => `<li><span class="mark ${results[i] ? 'ok' : 'bad'}">${results[i] ? '정답' : '오답'}</span><span>${i + 1}. ${q.q.replace(/<table[\s\S]*<\/table>/, '(표)').replace(/<[^>]+>/g, '')}<br><span style="color:var(--faint)">정답: ${q.show}</span></span></li>`).join('')}</ul>
+    <p style="margin-top:24px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn primary" id="again">새 숫자로 다시 풀기</button><a class="btn" href="playground.html" style="text-decoration:none">놀이터 가기</a></p>
+  </div>`;
+  document.getElementById('again').onclick = start;
+}
+
+start();
+</script>
+</body>
+</html>

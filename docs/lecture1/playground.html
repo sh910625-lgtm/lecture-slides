@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>확률분포 놀이터</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; }
+.tabs button { font: inherit; font-size: 15px; font-weight: 600; white-space: nowrap; color: var(--muted); background: transparent;
+  border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--text); background: var(--a1); border-color: var(--a1); }
+.panel[hidden] { display: none; }
+.panel h2 { font-size: 22px; margin: 0 0 4px; }
+.panel .desc { color: var(--muted); margin: 0 0 16px; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-bottom: 14px; }
+.controls label { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 15px; }
+.controls label input[type="range"] { width: 180px; }
+.controls .val { color: var(--text); font-weight: 700; min-width: 2.5em; font-variant-numeric: tabular-nums; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+canvas { display: block; width: 100%; border-radius: 12px; background: var(--bg); touch-action: none; }
+.readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 14px; }
+.stat { background: var(--bg2); border-radius: 12px; padding: 12px 14px; }
+.stat .k { color: var(--faint); font-size: 13px; }
+.stat .v { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; color: var(--muted); font-size: 14px; margin-top: 10px; }
+.legend i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+.note { margin-top: 14px; padding: 12px 16px; border-left: 4px solid var(--a3); background: var(--bg2); border-radius: 0 10px 10px 0; color: var(--muted); }
+.note b { color: var(--text); }
+.status { font-weight: 700; }
+.status.ok { color: var(--ok); } .status.bad { color: var(--bad); }
+.gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.gallery figure { margin: 0; background: var(--bg2); border-radius: 12px; overflow: hidden; }
+.gallery video { display: block; width: 100%; aspect-ratio: 16 / 9; background: var(--bg); }
+.gallery figcaption { padding: 12px 14px; }
+.gallery figcaption b { display: block; }
+.gallery figcaption span { color: var(--muted); font-size: 14px; }
+details { margin-top: 8px; }
+summary { cursor: pointer; color: var(--a4); font-size: 14px; }
+pre { margin: 8px 0 0; max-height: 360px; overflow: auto; background: #151a21; border-radius: 8px; padding: 12px; font-size: 12.5px; line-height: 1.5; }
+code { font-family: ui-monospace, Consolas, "D2Coding", monospace; }
+.run { margin-top: 20px; }
+.run pre { max-height: none; }
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="../">확률과 통계</a>
+  <nav><a href="index.html">1강 슬라이드</a><a href="quiz.html">퀴즈</a><a href="playground.html" aria-current="page">놀이터</a></nav>
+</div></header>
+
+<main class="wrap">
+  <div class="page-head">
+    <p class="eyebrow">1강 · 확률변수와 확률분포</p>
+    <h1>확률분포 놀이터</h1>
+    <p class="lead">슬라이드의 manim 애니메이션을 직접 움직여 보는 곳입니다. 값을 바꾸면 그래프가 바로 따라 움직입니다.</p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="coin">1. 동전 던지기 실험</button>
+    <button role="tab" aria-selected="false" data-tab="bars">2. 막대 → 곡선</button>
+    <button role="tab" aria-selected="false" data-tab="area">3. 넓이 = 확률</button>
+    <button role="tab" aria-selected="false" data-tab="build">4. 확률분포 만들기</button>
+    <button role="tab" aria-selected="false" data-tab="manim">5. manim 영상·코드</button>
+  </div>
+
+  <!-- ① 동전 -->
+  <section class="panel card" id="p-coin">
+    <h2>동전 던지기 실험</h2>
+    <p class="desc">동전 n개를 던져 앞면의 개수 X를 세어 봅니다. 많이 던질수록 상대도수(파란 막대)가 확률(주황 선)에 가까워집니다.</p>
+    <div class="controls">
+      <label>동전 개수 <input type="range" id="coinN" min="1" max="6" value="2"> <span class="val" id="coinNv">2</span></label>
+      <div class="btns">
+        <button class="btn" data-throw="1">1번</button><button class="btn" data-throw="10">10번</button>
+        <button class="btn" data-throw="100">100번</button><button class="btn" data-throw="1000">1000번</button>
+        <button class="btn primary" id="coinAuto">자동</button><button class="btn" id="coinReset">초기화</button>
+      </div>
+    </div>
+    <canvas id="cvCoin"></canvas>
+    <div class="legend"><span><i style="background:var(--a3)"></i>상대도수 (실험)</span><span><i style="background:var(--tag)"></i>확률 P(X = x) (이론)</span></div>
+    <div class="readout">
+      <div class="stat"><div class="k">던진 횟수</div><div class="v" id="coinT">0</div></div>
+      <div class="stat"><div class="k">마지막 결과</div><div class="v" id="coinLast">–</div></div>
+      <div class="stat"><div class="k">상대도수와 확률의 차이 (최대)</div><div class="v" id="coinErr">–</div></div>
+    </div>
+    <p class="note">동전 2개일 때 X = 1이 가장 많이 나오는 이유: <b>HT, TH</b> 두 근원사건이 모두 X = 1로 가기 때문입니다 (자판기 비유).</p>
+  </section>
+
+  <!-- ② 막대 → 곡선 -->
+  <section class="panel card" id="p-bars" hidden>
+    <h2>막대를 잘게 쪼개면</h2>
+    <p class="desc">막대의 넓이 합은 언제나 1입니다. 막대를 잘게 쪼갤수록 윗변이 곡선 y = f(x)에 가까워집니다.</p>
+    <div class="controls">
+      <label>모양 <select id="barsF"></select></label>
+      <label>막대 개수 <input type="range" id="barsK" min="2" max="120" value="5"> <span class="val" id="barsKv">5</span></label>
+      <div class="btns"><button class="btn primary" id="barsPlay">재생</button><button class="btn" id="barsCurve" aria-pressed="true">곡선 숨기기</button></div>
+    </div>
+    <canvas id="cvBars"></canvas>
+    <div class="readout">
+      <div class="stat"><div class="k">막대 넓이의 합</div><div class="v" id="barsSum">1</div></div>
+      <div class="stat"><div class="k">막대 하나의 폭</div><div class="v" id="barsW">–</div></div>
+      <div class="stat"><div class="k">막대와 곡선의 차이</div><div class="v" id="barsErr">–</div></div>
+    </div>
+  </section>
+
+  <!-- ③ 넓이 = 확률 -->
+  <section class="panel card" id="p-area" hidden>
+    <h2>넓이 = 확률</h2>
+    <p class="desc">a와 b를 움직여(그래프의 손잡이를 끌어도 됩니다) P(a ≤ X ≤ b)가 색칠한 넓이와 같다는 것을 확인해 보세요.</p>
+    <div class="controls">
+      <label>확률밀도함수 <select id="areaF"></select></label>
+      <label>a <input type="range" id="areaA" min="0" max="1000" value="0"> <span class="val" id="areaAv"></span></label>
+      <label>b <input type="range" id="areaB" min="0" max="1000" value="300"> <span class="val" id="areaBv"></span></label>
+      <div class="btns"><button class="btn" id="areaPoint">a = b (한 점)</button><button class="btn" id="areaAll">전체 구간</button></div>
+    </div>
+    <canvas id="cvArea"></canvas>
+    <div class="readout">
+      <div class="stat"><div class="k">P(a ≤ X ≤ b) = 색칠한 넓이</div><div class="v" id="areaP">–</div></div>
+      <div class="stat"><div class="k">전체 넓이</div><div class="v">1</div></div>
+      <div class="stat"><div class="k">계산</div><div class="v" id="areaHow" style="font-size:16px;font-weight:600">–</div></div>
+    </div>
+    <p class="note" id="areaNote">a = b로 붙이면 넓이가 0이 됩니다. <b>연속확률변수에서 한 점의 확률은 0</b>입니다 (모래 한 알갱이의 무게).</p>
+  </section>
+
+  <!-- ④ 확률분포 만들기 -->
+  <section class="panel card" id="p-build" hidden>
+    <h2>확률분포 만들기</h2>
+    <p class="desc">막대를 위아래로 끌어 확률을 정해 보세요. 확률을 모두 더해 1이 되어야 확률분포가 됩니다 (피자 한 판 = 1).</p>
+    <div class="controls">
+      <label>X가 취하는 값 개수 <input type="range" id="buildN" min="2" max="6" value="4"> <span class="val" id="buildNv">4</span></label>
+      <div class="btns">
+        <button class="btn primary" id="buildNorm">합이 1이 되게 맞추기</button>
+        <button class="btn" id="buildEven">모두 같게</button>
+        <button class="btn" id="buildCoin">동전 예시</button>
+        <button class="btn" id="buildRand">무작위</button>
+      </div>
+    </div>
+    <canvas id="cvBuild"></canvas>
+    <div class="readout">
+      <div class="stat"><div class="k">확률의 합</div><div class="v" id="buildSum">–</div></div>
+      <div class="stat" style="grid-column:span 2"><div class="k">판정</div><div class="v status" id="buildOk" style="font-size:18px">–</div></div>
+    </div>
+  </section>
+
+  <!-- ⑤ manim -->
+  <section class="panel card" id="p-manim" hidden>
+    <h2>manim 영상과 코드</h2>
+    <p class="desc">슬라이드에 들어간 애니메이션입니다. 코드를 열어 숫자나 색을 바꾼 뒤 컴퓨터에서 직접 렌더링해 볼 수 있습니다.</p>
+    <div class="gallery" id="gallery"></div>
+    <div class="run">
+      <h2>내 컴퓨터에서 실행하기</h2>
+      <p class="desc">manim은 파이썬 라이브러리라 브라우저에서는 실행할 수 없습니다. 위 1~4번은 같은 색과 모양으로 웹에서 다시 만든 것입니다.</p>
+      <pre><code>pip install manim
+# 같은 폴더에 scenes.py, manim_style.py 를 내려받은 뒤
+manim -pql scenes.py CoinDistribution     # 저화질로 빠르게 미리보기
+manim -pqh scenes.py CoinDistribution     # 고화질</code></pre>
+      <p class="desc" style="margin-top:10px">파일: <a href="assets/scenes.py" download>scenes.py</a> · <a href="assets/manim_style.py" download>manim_style.py</a> (글꼴은 Pretendard, LaTeX 없이 동작)</p>
+    </div>
+  </section>
+
+  <p class="footer">확률과 통계 · Ⅲ. 통계 › 1. 확률분포</p>
+</main>
+
+<script>
+// ---------- 공통 ----------
+const CSS = getComputedStyle(document.documentElement);
+const col = n => CSS.getPropertyValue(n).trim();
+const K = { bg: col('--bg'), line: col('--line'), text: col('--text'), muted: col('--muted'), faint: col('--faint'),
+  a1: col('--a1'), a2: col('--a2'), a3: col('--a3'), a4: col('--a4'), a5: col('--a5'), tag: col('--tag'), ok: col('--ok'), bad: col('--bad') };
+const FONT = '"Pretendard Variable", Pretendard, "Malgun Gothic", sans-serif';
+const $ = id => document.getElementById(id);
+const C = (n, k) => { let r = 1; for (let i = 1; i <= k; i++) r = r * (n - k + i) / i; return Math.round(r); };
+const fmt = (v, d = 3) => (Math.round(v * 10 ** d) / 10 ** d).toString();
+const gcd = (a, b) => b ? gcd(b, a % b) : a;
+const frac = (n, d) => { const g = gcd(n, d); return d / g === 1 ? `${n / g}` : `${n / g}/${d / g}`; };
+const lerp = (a, b, t) => a + (b - a) * t;
+
+class Plot {
+  constructor(cv) { this.cv = cv; this.ctx = cv.getContext('2d'); }
+  resize() {
+    const w = this.cv.clientWidth, h = Math.round(w * (w < 600 ? 0.72 : 0.48)), d = devicePixelRatio || 1;
+    this.cv.width = w * d; this.cv.height = h * d; this.cv.style.height = h + 'px';
+    this.ctx.setTransform(d, 0, 0, d, 0, 0); this.w = w; this.h = h;
+  }
+  frame(x0, x1, y0, y1) {
+    const m = this.m = { l: 52, r: 18, t: 18, b: 40 };
+    const W = this.w - m.l - m.r, H = this.h - m.t - m.b;
+    this.X = x => m.l + (x - x0) / (x1 - x0) * W;
+    this.Y = y => m.t + H - (y - y0) / (y1 - y0) * H;
+    this.invX = px => x0 + (px - m.l) / W * (x1 - x0);
+    this.invY = py => y0 + (m.t + H - py) / H * (y1 - y0);
+    const c = this.ctx; c.fillStyle = K.bg; c.fillRect(0, 0, this.w, this.h);
+    this.box = { x0, x1, y0, y1 };
+  }
+  axes(xt, yt, fx = String, fy = v => fmt(v, 2)) {
+    const c = this.ctx, { x0, x1, y0, y1 } = this.box;
+    c.font = `13px ${FONT}`; c.fillStyle = K.muted; c.strokeStyle = K.line; c.lineWidth = 1;
+    c.textAlign = 'right'; c.textBaseline = 'middle';
+    yt.forEach(v => { const y = this.Y(v); c.beginPath(); c.moveTo(this.X(x0), y); c.lineTo(this.X(x1), y); c.stroke(); c.fillText(fy(v), this.m.l - 8, y); });
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    xt.forEach(v => c.fillText(fx(v), this.X(v), this.Y(y0) + 8));
+    c.strokeStyle = K.text; c.lineWidth = 2; c.beginPath();
+    c.moveTo(this.X(x0), this.Y(y1)); c.lineTo(this.X(x0), this.Y(y0)); c.lineTo(this.X(x1), this.Y(y0)); c.stroke();
+  }
+  label(t, x, y, color = K.text, size = 14, align = 'center') {
+    const c = this.ctx; c.font = `600 ${size}px ${FONT}`; c.fillStyle = color; c.textAlign = align; c.textBaseline = 'bottom'; c.fillText(t, x, y);
+  }
+  pos(e) { const r = this.cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; }
+}
+
+// 확률밀도함수 모음 (F = 누적, 넓이 계산용)
+const PDFS = {
+  uniform: { name: '균등: f(x) = 1/10 (0 ≤ x ≤ 10)', a: 0, b: 10, f: x => 0.1, F: x => x / 10, ymax: 0.2, xt: [0, 2, 4, 6, 8, 10], yt: [0, 0.05, 0.1, 0.15, 0.2],
+    how: (a, b) => `(${fmt(b - a, 2)}) × 1/10` },
+  tri: { name: '삼각형: f(x) = x/2 (0 ≤ x ≤ 2)', a: 0, b: 2, f: x => x / 2, F: x => x * x / 4, ymax: 1.2, xt: [0, 0.5, 1, 1.5, 2], yt: [0, 0.25, 0.5, 0.75, 1],
+    how: (a, b) => `(${fmt(b, 2)}² − ${fmt(a, 2)}²) / 4` },
+  bell: { name: '종 모양: f(x) = ¾(1 − x²) (−1 ≤ x ≤ 1)', a: -1, b: 1, f: x => 0.75 * (1 - x * x), F: x => 0.75 * (x - x ** 3 / 3) + 0.5, ymax: 1, xt: [-1, -0.5, 0, 0.5, 1], yt: [0, 0.25, 0.5, 0.75],
+    how: () => 'F(b) − F(a), F(x) = ¾(x − x³/3) + ½' },
+};
+
+const tabs = {};
+let active = 'coin', dirty = true;
+const touch = () => { dirty = true; };
+
+// ---------- ① 동전 ----------
+{
+  const P = new Plot($('cvCoin'));
+  const S = { n: 2, cnt: [0, 0, 0], T: 0, disp: [0, 0, 0], auto: null };
+  const theory = () => Array.from({ length: S.n + 1 }, (_, k) => C(S.n, k) / 2 ** S.n);
+  function reset() { S.cnt = Array(S.n + 1).fill(0); S.disp = Array(S.n + 1).fill(0); S.T = 0; $('coinLast').textContent = '–'; update(); }
+  function toss(m) {
+    let last;
+    for (let i = 0; i < m; i++) {
+      let h = 0; last = '';
+      for (let j = 0; j < S.n; j++) { const H = Math.random() < 0.5; h += H; last += H ? 'H' : 'T'; }
+      S.cnt[h]++; S.T++;
+      if (i === m - 1) $('coinLast').textContent = `${last} → X = ${h}`;
+    }
+    update();
+  }
+  function update() {
+    $('coinT').textContent = S.T.toLocaleString();
+    const th = theory();
+    $('coinErr').textContent = S.T ? fmt(Math.max(...S.cnt.map((c, k) => Math.abs(c / S.T - th[k]))), 3) : '–';
+    touch();
+  }
+  $('coinN').oninput = e => { S.n = +e.target.value; $('coinNv').textContent = S.n; reset(); };
+  document.querySelectorAll('[data-throw]').forEach(b => b.onclick = () => toss(+b.dataset.throw));
+  $('coinAuto').onclick = () => {
+    if (S.auto) { clearInterval(S.auto); S.auto = null; $('coinAuto').textContent = '자동'; }
+    else { S.auto = setInterval(() => toss(Math.min(500, Math.max(1, Math.floor(S.T / 20)))), 60); $('coinAuto').textContent = '멈춤'; }
+  };
+  $('coinReset').onclick = reset;
+  tabs.coin = {
+    P, draw() {
+      const th = theory(), n = S.n, ymax = Math.min(1, Math.max(...th) * 1.5);
+      P.frame(-0.6, n + 0.6, 0, ymax);
+      const step = ymax > 0.6 ? 0.2 : ymax > 0.3 ? 0.1 : 0.05;
+      const yt = []; for (let v = 0; v <= ymax + 1e-9; v += step) yt.push(+v.toFixed(2));
+      P.axes([...Array(n + 1).keys()], yt);
+      const c = P.ctx, bw = Math.min(70, (P.X(1) - P.X(0)) * 0.6);
+      let moving = false;
+      for (let k = 0; k <= n; k++) {
+        const target = S.T ? S.cnt[k] / S.T : 0;
+        S.disp[k] = lerp(S.disp[k], target, 0.2);
+        if (Math.abs(S.disp[k] - target) > 1e-4) moving = true;
+        const x = P.X(k), y = P.Y(S.disp[k]);
+        c.fillStyle = K.a3; c.fillRect(x - bw / 2, y, bw, P.Y(0) - y);
+        c.strokeStyle = K.tag; c.lineWidth = 3; c.beginPath();
+        c.moveTo(x - bw / 2 - 6, P.Y(th[k])); c.lineTo(x + bw / 2 + 6, P.Y(th[k])); c.stroke();
+        P.label(frac(C(n, k), 2 ** n), x, P.Y(Math.max(th[k], S.disp[k])) - 6, K.tag, 13);
+      }
+      P.label('X (앞면의 개수)', P.w - 20, P.h - 2, K.faint, 12, 'right');
+      return moving;
+    }
+  };
+}
+
+// ---------- ② 막대 → 곡선 ----------
+{
+  const P = new Plot($('cvBars'));
+  const S = { f: 'tri', k: 5, curve: true, play: null };
+  Object.entries(PDFS).forEach(([key, d]) => $('barsF').add(new Option(d.name, key)));
+  $('barsF').value = S.f;
+  const setK = k => { S.k = k; $('barsK').value = k; $('barsKv').textContent = k; touch(); };
+  $('barsF').onchange = e => { S.f = e.target.value; touch(); };
+  $('barsK').oninput = e => setK(+e.target.value);
+  $('barsCurve').onclick = e => { S.curve = !S.curve; e.target.textContent = S.curve ? '곡선 숨기기' : '곡선 보이기'; e.target.setAttribute('aria-pressed', S.curve); touch(); };
+  $('barsPlay').onclick = () => {
+    if (S.play) { clearInterval(S.play); S.play = null; $('barsPlay').textContent = '재생'; return; }
+    const seq = [2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 120];
+    let i = 0; setK(seq[0]); $('barsPlay').textContent = '멈춤';
+    S.play = setInterval(() => { i++; if (i >= seq.length) { clearInterval(S.play); S.play = null; $('barsPlay').textContent = '재생'; return; } setK(seq[i]); }, 450);
+  };
+  tabs.bars = {
+    P, draw() {
+      const d = PDFS[S.f], k = S.k, w = (d.b - d.a) / k;
+      P.frame(d.a, d.b, 0, d.ymax); P.axes(d.xt, d.yt);
+      const hs = []; let tot = 0;
+      for (let i = 0; i < k; i++) {                       // 각 막대 넓이 = 그 구간에서 곡선 아래 넓이 → 합이 정확히 1
+        const p = d.F(d.a + (i + 1) * w) - d.F(d.a + i * w); hs.push(p / w); tot += p;
+      }
+      const c = P.ctx;
+      hs.forEach((h, i) => {
+        const x0 = P.X(d.a + i * w), x1 = P.X(d.a + (i + 1) * w), y = P.Y(h);
+        c.fillStyle = K.a2; c.globalAlpha = 0.85; c.fillRect(x0, y, x1 - x0, P.Y(0) - y); c.globalAlpha = 1;
+        if (k <= 60) { c.strokeStyle = K.bg; c.lineWidth = 1; c.strokeRect(x0, y, x1 - x0, P.Y(0) - y); }
+      });
+      let err = 0; const N = 400;                          // 막대 윗변과 곡선 사이 넓이
+      for (let j = 0; j < N; j++) { const x = d.a + (j + 0.5) * (d.b - d.a) / N; err += Math.abs(d.f(x) - hs[Math.min(k - 1, Math.floor((x - d.a) / w))]) * (d.b - d.a) / N; }
+      if (S.curve) {
+        c.strokeStyle = K.tag; c.lineWidth = 3; c.beginPath();
+        for (let j = 0; j <= 200; j++) { const x = d.a + j * (d.b - d.a) / 200; j ? c.lineTo(P.X(x), P.Y(d.f(x))) : c.moveTo(P.X(x), P.Y(d.f(x))); }
+        c.stroke();
+        P.label('y = f(x)', P.w - 24, P.m.t + 16, K.tag, 14, 'right');
+      }
+      $('barsSum').textContent = fmt(tot, 3); $('barsW').textContent = fmt(w, 4); $('barsErr').textContent = fmt(err, 4);
+      return false;
+    }
+  };
+}
+
+// ---------- ③ 넓이 = 확률 ----------
+{
+  const P = new Plot($('cvArea'));
+  const S = { f: 'uniform', a: 0, b: 3, drag: null };
+  Object.entries(PDFS).forEach(([key, d]) => $('areaF').add(new Option(d.name, key)));
+  const d = () => PDFS[S.f];
+  const toS = v => Math.round((v - d().a) / (d().b - d().a) * 1000);
+  const fromS = s => d().a + s / 1000 * (d().b - d().a);
+  const snap = v => { const r = (d().b - d().a) / 100; return Math.round(v / r) * r; };
+  function set(a, b) {
+    const D = d(); a = Math.max(D.a, Math.min(D.b, a)); b = Math.max(D.a, Math.min(D.b, b));
+    if (a > b) [a, b] = [b, a];
+    S.a = +a.toFixed(4); S.b = +b.toFixed(4);
+    $('areaA').value = toS(S.a); $('areaB').value = toS(S.b);
+    $('areaAv').textContent = fmt(S.a, 2); $('areaBv').textContent = fmt(S.b, 2);
+    touch();
+  }
+  $('areaF').onchange = e => { S.f = e.target.value; const D = d(); set(D.a + 0.2 * (D.b - D.a), D.a + 0.5 * (D.b - D.a)); };
+  $('areaA').oninput = e => set(snap(fromS(+e.target.value)), S.b);
+  $('areaB').oninput = e => set(S.a, snap(fromS(+e.target.value)));
+  $('areaPoint').onclick = () => set(S.a, S.a);
+  $('areaAll').onclick = () => set(d().a, d().b);
+  const cv = $('cvArea');
+  cv.onpointerdown = e => {
+    const [px] = P.pos(e), x = P.invX(px);
+    S.drag = Math.abs(x - S.a) <= Math.abs(x - S.b) && !(S.a === S.b && x > S.a) ? 'a' : 'b';
+    cv.setPointerCapture(e.pointerId); cv.onpointermove(e);
+  };
+  cv.onpointermove = e => {
+    if (!S.drag) return;
+    const x = snap(P.invX(P.pos(e)[0]));
+    if (S.drag === 'a') { if (x > S.b) { S.drag = 'b'; set(S.b, x); } else set(x, S.b); }
+    else { if (x < S.a) { S.drag = 'a'; set(x, S.a); } else set(S.a, x); }
+  };
+  cv.onpointerup = cv.onpointercancel = () => { S.drag = null; };
+  tabs.area = {
+    P, draw() {
+      const D = d(), c = P.ctx;
+      P.frame(D.a, D.b, 0, D.ymax); P.axes(D.xt, D.yt);
+      c.fillStyle = K.a3; c.globalAlpha = 0.75; c.beginPath(); c.moveTo(P.X(S.a), P.Y(0));
+      for (let j = 0; j <= 120; j++) { const x = S.a + j * (S.b - S.a) / 120; c.lineTo(P.X(x), P.Y(D.f(x))); }
+      c.lineTo(P.X(S.b), P.Y(0)); c.closePath(); c.fill(); c.globalAlpha = 1;
+      c.strokeStyle = K.text; c.lineWidth = 3; c.beginPath();
+      for (let j = 0; j <= 200; j++) { const x = D.a + j * (D.b - D.a) / 200; j ? c.lineTo(P.X(x), P.Y(D.f(x))) : c.moveTo(P.X(x), P.Y(D.f(x))); }
+      c.stroke();
+      [['a', S.a], ['b', S.b]].forEach(([n, v], i) => {
+        const x = P.X(v);
+        c.strokeStyle = K.tag; c.lineWidth = 2; c.setLineDash([6, 5]); c.beginPath(); c.moveTo(x, P.Y(0)); c.lineTo(x, P.Y(D.ymax * 0.92)); c.stroke(); c.setLineDash([]);
+        c.fillStyle = K.tag; c.beginPath(); c.arc(x, P.Y(D.ymax * 0.92), 9, 0, 7); c.fill();
+        P.label(n, x, P.Y(D.ymax * 0.92) - 12, K.tag, 15);
+      });
+      const p = D.F(S.b) - D.F(S.a);
+      if (p > 0.02) P.label(fmt(p, 3), P.X((S.a + S.b) / 2), P.Y(D.f((S.a + S.b) / 2) / 2) + 8, K.text, 18);
+      $('areaP').textContent = fmt(p, 4);
+      $('areaHow').textContent = S.f === 'uniform' && Number.isInteger(S.a) && Number.isInteger(S.b) ? `${D.how(S.a, S.b)} = ${frac(S.b - S.a, 10)}` : D.how(S.a, S.b);
+      $('areaNote').style.borderLeftColor = S.a === S.b ? K.tag : K.a3;
+      return false;
+    }
+  };
+  $('areaF').value = S.f; set(0, 3);
+}
+
+// ---------- ④ 확률분포 만들기 ----------
+{
+  const P = new Plot($('cvBuild'));
+  const S = { p: [0.1, 0.3, 0.4, 0.2], drag: false, disp: [0, 0, 0, 0] };
+  const setN = n => { S.p = Array(n).fill(+(1 / n).toFixed(2)); S.disp = Array(n).fill(0); $('buildN').value = n; $('buildNv').textContent = n; touch(); };
+  $('buildN').oninput = e => setN(+e.target.value);
+  $('buildNorm').onclick = () => {
+    const s = S.p.reduce((a, b) => a + b, 0);
+    if (s === 0) { setN(S.p.length); return; }
+    S.p = S.p.map(v => Math.round(v / s * 100) / 100);
+    const diff = Math.round((1 - S.p.reduce((a, b) => a + b, 0)) * 100) / 100;   // 반올림 오차는 가장 큰 막대에서 조정
+    const i = S.p.indexOf(Math.max(...S.p)); S.p[i] = Math.round((S.p[i] + diff) * 100) / 100; touch();
+  };
+  $('buildEven').onclick = () => {
+    const n = S.p.length, base = Math.floor(100 / n);
+    S.p = Array.from({ length: n }, (_, i) => (base + (i < 100 - base * n ? 1 : 0)) / 100); touch();
+  };
+  $('buildCoin').onclick = () => { setN(3); S.p = [0.25, 0.5, 0.25]; touch(); };
+  $('buildRand').onclick = () => { S.p = S.p.map(() => Math.round(Math.random() * 60) / 100); touch(); };
+  const cv = $('cvBuild');
+  function setAt(e) {
+    const [px, py] = P.pos(e), n = S.p.length, i = Math.round(P.invX(px));
+    if (i < 0 || i >= n) return;
+    S.p[i] = Math.max(0, Math.min(1, Math.round(P.invY(py) * 100) / 100)); touch();
+  }
+  cv.onpointerdown = e => { S.drag = true; cv.setPointerCapture(e.pointerId); setAt(e); };
+  cv.onpointermove = e => { if (S.drag) setAt(e); };
+  cv.onpointerup = cv.onpointercancel = () => { S.drag = false; };
+  tabs.build = {
+    P, draw() {
+      const n = S.p.length, c = P.ctx;
+      P.frame(-0.6, n - 0.4, 0, 1.05); P.axes([...Array(n).keys()], [0, 0.25, 0.5, 0.75, 1], v => `x = ${v}`);
+      const bw = Math.min(90, (P.X(1) - P.X(0)) * 0.6);
+      let moving = false;
+      S.p.forEach((v, i) => {
+        S.disp[i] = lerp(S.disp[i] ?? 0, v, 0.3); if (Math.abs(S.disp[i] - v) > 1e-4) moving = true;
+        const x = P.X(i), y = P.Y(S.disp[i]);
+        c.fillStyle = K.a3; c.fillRect(x - bw / 2, y, bw, P.Y(0) - y);
+        c.fillStyle = K.a5; c.fillRect(x - bw / 2, y - 3, bw, 6);              // 끌기 손잡이
+        P.label(v.toFixed(2), x, y - 8, K.text, 14);
+      });
+      const s = Math.round(S.p.reduce((a, b) => a + b, 0) * 100) / 100, ok = Math.abs(s - 1) < 1e-9;
+      $('buildSum').textContent = s.toFixed(2);
+      $('buildOk').className = 'v status ' + (ok ? 'ok' : 'bad');
+      $('buildOk').textContent = ok ? '확률분포가 될 수 있어요 (0 ≤ p ≤ 1, 합 = 1)' : `합이 ${s.toFixed(2)} → 1이 아니라서 확률분포가 아니에요`;
+      P.label('막대를 위아래로 끌어 보세요', P.w - 20, P.m.t + 16, K.faint, 13, 'right');
+      return moving;
+    }
+  };
+}
+
+// ---------- ⑤ manim 영상·코드 ----------
+{
+  const SCENES = [
+    ['RandomVariableMap', '확률변수', '근원사건 HH, HT, TH, TT를 X의 값에 화살표로 대응시킵니다.'],
+    ['CoinDistribution', '확률분포를 표와 그래프로', '확률 막대가 자란 뒤 쌓여서 높이 1이 됩니다.'],
+    ['BallDraw', '예제: 공 꺼내기', '흰 공 3개, 검은 공 2개에서 2개를 꺼낼 때 흰 공의 개수 분포.'],
+    ['DiscreteToContinuous', '막대 → 곡선', '막대를 잘게 쪼개면 윗변이 확률밀도함수 곡선에 가까워집니다.'],
+    ['UniformArea', '넓이 = 확률', '색칠한 넓이가 늘어나며 확률이 0에서 1로 변합니다.'],
+  ];
+  $('gallery').innerHTML = SCENES.map(([id, t, s]) => `
+    <figure><video src="assets/${id}.mp4" poster="assets/${id}.png" controls muted playsinline preload="none"></video>
+    <figcaption><b>${t}</b><span>${s}</span><details data-scene="${id}"><summary>manim 코드 보기 (${id})</summary><pre><code>불러오는 중…</code></pre></details></figcaption></figure>`).join('');
+  let src = null;
+  document.querySelectorAll('details[data-scene]').forEach(el => el.addEventListener('toggle', async () => {
+    if (!el.open) return;
+    const code = el.querySelector('code');
+    try {
+      src = src || await (await fetch('assets/scenes.py')).text();
+      const m = src.match(new RegExp(`^class ${el.dataset.scene}\\(Scene\\):[\\s\\S]*?(?=^class |(?![\\s\\S]))`, 'm'));
+      code.textContent = m ? m[0].trimEnd() : '코드를 찾지 못했습니다.';
+    } catch { code.textContent = '코드를 불러오지 못했습니다. 아래 scenes.py 링크를 이용해 주세요.'; }
+  }));
+  tabs.manim = { draw() { return false; } };
+}
+
+// ---------- 탭, 크기, 그리기 반복 ----------
+function resizeAll() { Object.values(tabs).forEach(t => t.P && !t.P.cv.closest('[hidden]') && t.P.resize()); touch(); }
+document.querySelectorAll('[role="tab"]').forEach(b => b.onclick = () => {
+  active = b.dataset.tab;
+  document.querySelectorAll('[role="tab"]').forEach(x => x.setAttribute('aria-selected', x === b));
+  document.querySelectorAll('.panel').forEach(p => p.hidden = p.id !== 'p-' + active);
+  if (active !== 'manim') document.querySelectorAll('#gallery video').forEach(v => v.pause());
+  history.replaceState(null, '', '#' + active);
+  resizeAll();
+});
+addEventListener('resize', resizeAll);
+(function loop() { if (dirty) dirty = !!tabs[active].draw(); requestAnimationFrame(loop); })();
+document.fonts?.ready.then(touch);
+const start = location.hash.slice(1);
+(document.querySelector(`[data-tab="${start}"]`) || document.querySelector('[data-tab="coin"]')).click();
+</script>
+</body>
+</html>
