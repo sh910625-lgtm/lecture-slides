@@ -213,8 +213,8 @@ def picture(slide, name, x, y, w, h, focus=(0.5, 0.5), credit=True):
     if credit:
         c = _ctx["credits"].get(name)
         if c:
-            text(slide, x, y + h + 60000, w, 250000, f"사진: {c['creator_short']} / {c['license']}", 10, MUTED,
-                 PP_ALIGN.RIGHT)
+            label = f"AI 생성: {c['creator_short']}" if c.get("ai") else f"사진: {c['creator_short']} / {c['license']}"
+            text(slide, x, y + h + 60000, w, 250000, label, 10, MUTED, PP_ALIGN.RIGHT)
     return pic
 
 
@@ -316,11 +316,15 @@ class Deck:
     def credits_slide(self):
         if not _ctx["credits"]:
             return
-        s = self.slide("이미지 출처", "모든 사진은 ", "CC 라이선스 / 퍼블릭 도메인",
+        photos = {k: v for k, v in _ctx["credits"].items() if not v.get("ai")}
+        ai = {k: v for k, v in _ctx["credits"].items() if v.get("ai")}
+        s = self.slide("이미지 출처", "사진은 ", "CC 라이선스 / 퍼블릭 도메인" + (", 일부는 AI 생성" if ai else ""),
                        "CC BY / BY-SA 사진은 출처를 표시하면 수업 자료로 사용할 수 있습니다.")
-        lines = [f"• {k}.jpg — {v['title']} / {v['creator_short']} / {v['license']}"
-                 for k, v in _ctx["credits"].items()]
-        text(s, L, 1650000, CW, 3500000, lines, 14 if len(lines) <= 9 else 12, WHITE, after=8)
+        lines = [f"• {k}.jpg — {v['title']} / {v['creator_short']} / {v['license']}" for k, v in photos.items()]
+        if ai:
+            lines.append("[[AI 생성]]")
+            lines += [f"• {v.get('file', k + '.jpg').split('/')[-1]} — {v['title']} / {v['creator']}" for k, v in ai.items()]
+        text(s, L, 1550000, CW, 3700000, lines, 14 if len(lines) <= 9 else 11, WHITE, after=4 if len(lines) > 9 else 8)
         text(s, L, 5300000, CW, 700000,
              [f"원본 링크: {os.path.relpath(os.path.join(_ctx['img'], '출처.md'), PROJECT)}",
               "애니메이션: manim (Community Edition)으로 제작"], 13, MUTED, after=4)

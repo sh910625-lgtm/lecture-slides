@@ -50,6 +50,14 @@ lectures/N강/
 - `python scripts/find_images.py fetch <scratchpad>/img lectures/N강/images 이름=key_i ...` → `images/이름.jpg`, `credits.json`, `출처.md`.
 - 사람 얼굴이 크게 나온 사진, 상표가 주인공인 사진, 글자가 많은 사진은 피한다.
 
+### 4-1. (선택) Google Flow로 인트로 영상·생성 이미지
+사용자가 요청할 때만. Claude in Chrome으로 https://labs.google/fx/tools/flow → 새 프로젝트.
+- 입력창 오른쪽 모델 버튼에서 이미지/동영상 전환. 영상은 Veo 3.1 Lite x1(10크레딧, 8초 720p, 소리 포함), 이미지는 Nano Banana x2(무료)로 두 장 중 고른다.
+- 이미지 프롬프트 공통 스타일: "Soft 3D clay illustration ... Plain dark navy background (#222A35), soft blue and white palette, minimal, lots of empty space. No text, no letters, no numbers."
+- 결과를 열어 오른쪽 위 다운로드 → 이미지 1K / 영상 720p. **다운로드 전에 파일 목록을 보여 주고 허락을 받는다.** 받은 파일(`~/Downloads`)은 `images/ai_*.jpg`, `animations/Intro.mp4`로 옮기고 포스터 `Intro.png`(PyAV로 프레임 추출)를 만든다.
+- `images/credits.json`에 `"ai": true` 항목을 추가하면 사진 아래 "AI 생성: Google Flow"로, 출처 슬라이드엔 따로 묶여 표시된다.
+- Veo는 숫자·글자를 뭉개서 그리기 쉽다 → 프롬프트에서 글자를 빼거나, 결과를 꼭 프레임으로 확인.
+
 ### 5. 슬라이드 (build_slides.py)
 - `Deck(__file__, "N강_<주제>.pptx", footer=("과목", "단원 › 절"))` → `deck.cover(...)`, `deck.ending(...)`, `s = deck.slide(제목, 부제, 부제강조, notes=...)`, 끝에 `deck.credits_slide()`, `deck.save()`.
 - 좌표는 EMU. 본문 영역 `L..R`(=838200..11353800), 세로 약 1550000..6200000. 바닥글 6380000.
@@ -63,11 +71,19 @@ lectures/N강/
 - 겹침, 잘린 글자, 한 글자만 다음 줄로 넘어간 줄, 영상과 텍스트 충돌, 사진 크롭을 고치고 다시 빌드.
 - 영상은 실제 슬라이드쇼 재생까지는 확인 못 하므로, 끝나면 사용자에게 F5로 확인을 부탁한다.
 
+### 7. (선택) 웹 버전 · GitHub Pages
+사용자가 웹/배포를 요청할 때. 사이트는 `docs/`(GitHub Pages: main 브랜치 `/docs`), 주소는 https://sh910625-lgtm.github.io/lecture-slides/
+- `python scripts/build_web.py lectures/N강 docs/lectureN` → 사진·영상·포스터·scenes.py를 `docs/lectureN/assets/`로 복사.
+- `docs/lecture1/`을 복사해 고친다: `index.html`(슬라이드: 1920×1080 무대, ←/→·N 노트·F 전체화면, 영상은 슬라이드가 열리면 재생), `quiz.html`(GEN 배열의 문제 생성기, 풀 때마다 숫자가 바뀜), `playground.html`(canvas로 만든 인터랙티브 그래프 + manim 영상·코드). 공통 색은 `docs/assets/site.css`. `docs/index.html` 목록에 차시 카드 추가.
+- 확인: `python -m http.server`로 `docs/`를 띄워 Chrome에서 보고, 슬라이드는 요소가 무대 안(아래 930px, 오른쪽 1792px)에 있는지 JS로 잰다.
+- 배포는 커밋·push만 하면 된다 (Pages 설정은 이미 켜져 있음). manim은 브라우저에서 못 돌리므로 놀이터는 JS로 다시 그린 것이다.
+
 ## 주의 (겪었던 문제)
 - **LaTeX 없음**: manim에서 `MathTex`, `Tex`, `DecimalNumber`, `Axes.add_coordinates` 쓰지 말 것. 숫자 표시는 `always_redraw(lambda: T(f"{v:.2f}"))`.
 - 막대그래프: 범주를 x=1..n에 둔다(`bar_chart`, `x_labels`). x=0에 두면 y축이 첫 막대를 관통한다.
 - 글자를 바꿀 때 `Transform` 대신 `FadeTransform`(글자가 뭉개지지 않음). 반복문에서는 바꾼 뒤 `label = new`로 다시 가리켜야 이전 글자가 남지 않는다.
 - 템플릿 레이아웃이 쪽 번호 원을 자동으로 그린다 — 직접 그리지 말 것.
+- 수식이 줄 끝에서 쪼개지면(`P(0 ≤ X /≤ 1)`) 수식 안 공백을 ` `(줄바꿈 없는 공백)으로 바꾼다.
 - PowerShell 5.1은 BOM 없는 UTF-8 .ps1의 한글 때문에 파싱이 깨진다 → .ps1은 `utf-8-sig`로 저장.
 - PowerPoint COM에는 `\` 경로만 넘긴다.
 - 웹 요청 헤더(User-Agent 등)에 사용자 이메일 등 개인정보를 넣지 않는다. Flickr(Openverse 경유)는 속도 제한이 심해 Wikimedia Commons를 쓴다.

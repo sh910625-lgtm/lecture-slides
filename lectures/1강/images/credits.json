@@ -47,5 +47,54 @@
   "creator_short": "W.carter",
   "license": "CC BY-SA 4.0",
   "url": "https://commons.wikimedia.org/wiki/File:Pile_of_sand_by_the_soccer_fields_at_Brastad_Arena.jpg"
+ },
+ "ai_goals": {
+  "title": "Staircase path leading to lightbulb",
+  "creator": "Google Flow (Nano Banana 2.1)",
+  "creator_short": "Google Flow",
+  "license": "AI 생성",
+  "url": "https://labs.google/fx/tools/flow",
+  "ai": true
+ },
+ "ai_blocks": {
+  "title": "Wooden counting blocks stacked",
+  "creator": "Google Flow (Nano Banana 2.1)",
+  "creator_short": "Google Flow",
+  "license": "AI 생성",
+  "url": "https://labs.google/fx/tools/flow",
+  "ai": true
+ },
+ "ai_hourglass": {
+  "title": "Hourglass pouring sand",
+  "creator": "Google Flow (Nano Banana 2.1)",
+  "creator_short": "Google Flow",
+  "license": "AI 생성",
+  "url": "https://labs.google/fx/tools/flow",
+  "ai": true
+ },
+ "ai_quiz": {
+  "title": "Coins, pencil and notebook",
+  "creator": "Google Flow (Nano Banana 2.1)",
+  "creator_short": "Google Flow",
+  "license": "AI 생성",
+  "url": "https://labs.google/fx/tools/flow",
+  "ai": true
+ },
+ "ai_shelf": {
+  "title": "Four toy figurines on shelf",
+  "creator": "Google Flow (Nano Banana 2.1)",
+  "creator_short": "Google Flow",
+  "license": "AI 생성",
+  "url": "https://labs.google/fx/tools/flow",
+  "ai": true
+ },
+ "_intro_video": {
+  "title": "Coin flipping on classroom desk (인트로 영상)",
+  "creator": "Google Flow (Veo 3.1 Lite)",
+  "creator_short": "Google Flow · Veo 3.1",
+  "license": "AI 생성",
+  "url": "https://labs.google/fx/tools/flow",
+  "ai": true,
+  "file": "animations/Intro.mp4"
  }
 }
